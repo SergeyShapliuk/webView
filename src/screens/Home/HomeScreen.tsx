@@ -1,93 +1,95 @@
-import React from "react";
-import {Button, Dimensions, FlatList, Text, TouchableOpacity, View, StyleSheet, Image} from "react-native";
+import React, {useEffect, useState} from "react";
+import {StyleSheet} from "react-native";
 import {useAppNavigation} from "../../types/types";
-import {data} from "../../data/data";
+
+import * as Device from 'expo-device';
+import WebView from "react-native-webview";
+import {GAP, PADDING, WIDTH} from "../../constants/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
+//const path: string = "https://google.com"
 
-const {height, width} = Dimensions.get("screen")
-export const HEIGHT = height
-export const WIDTH = width
-export const PADDING = 30
-export const GAP=5
 
 export function HomeScreen() {
-    const navigation=useAppNavigation()
-    const path=""
-    // path = ""
-    // if( path===""){
-    //     loadFire()
-    // }else{
-    //     return path;
-    // }
-    const loadFire=()=>{
-        // getUrl = получаем значение из firebase_remote_config(“url”);
-        // brandDevice = функция на определение бренда телефона
-        // simDevice = функция на наличие симкарты
-        // Второе условие!!
-        // if( getUrl.isEmpty ||  brandDevice.contains(“google”) ||  !simDevice ){
-        //     return  заглушка ;
-        // }else{
-        //     локальное сохранение ссылки = setString(“key”, getUrl);  -  пример
-        //     WebView
-        // }
+    const [store,setStore]=useState<string>("")
+    const navigation = useAppNavigation()
+
+    useEffect(() => {
+            console.log("effekt")
+        getLocalStorage()
+            start(store)
+    }, [])
+
+    const start = (value) => {
+        if (value === "") {
+            loadFire()
+        } else {
+            return value
+        }
+    }
+    const localStorage = async (value) => {
+     await AsyncStorage.setItem("url", value)
+    }
+    const getLocalStorage = async () => {
+            const jsonValue = await AsyncStorage.getItem("url")
+            return setStore(jsonValue)
     }
 
-    return (
-        <View style={styles.container}>
-            <FlatList data={data}
-                      // numColumns={2}
-                      // contentContainerStyle={{paddingHorizontal:PADDING}}
-                      // columnWrapperStyle={{justifyContent: "space-between"}}
-                      renderItem={({item}) => {
-                          return <View style={styles.item}>
-                              <Image style={{width:130,height:100}} source={{uri:item.photo}}/>
-                              <Text style={styles.title}>{item.title}</Text>
-                              <Text style={styles.text} numberOfLines={5}>{item.description}</Text>
-                          </View>
+    console.log("getLocalStorage", store)
+    console.log("AsyncStorage", AsyncStorage.getItem("url"))
+    const loadFire = () => {
+        const getUrl = store
+        const brandDevice = Device.brand
+        console.log("brandDevice", brandDevice)
+        const simDevice = true
+        if (getUrl === "" || brandDevice === "google" || !simDevice) {
+            console.log("getUrl", getUrl)
 
-
-                      }}
-                      keyExtractor={(item, index) => `${item.id}.${index}`}
-            />
-
-
-            {/*<Text>{JSON.stringify(pokemons,null,2)}</Text>*/}
-        </View>
-    );
+            navigation.navigate("Home")
+        }else {
+            localStorage(store)
+            navigation.navigate("WebView", {url:store})
+        }
+    }
 }
-
+// localStorage(getUrl)
+// navigation.navigate("WebView", {url:getUrl})
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "black"
 
         // justifyContent: "center",
         // alignItems: "center"
     },
-    item:{
+    item: {
         width: ((WIDTH - PADDING)) - GAP,
         // height: ((WIDTH - PADDING * 2)) - GAP,
-        flexDirection:"row",
+        flexDirection: "row",
         // alignItems:"center",
-        paddingVertical:10,
-        paddingHorizontal:6,
+        paddingVertical: 10,
+        paddingHorizontal: 6,
         // marginVertical:GAP,
         // borderWidth: 1,
         // borderRadius: 5,
         // backgroundColor:"tomato",
 
     },
-    title:{
-        fontSize:18,
-        fontWeight:"700"
+    title: {
+        color: "blue",
+        fontSize: 14,
+        fontWeight: "700"
     },
-    text:{
-        width:WIDTH/2,
+    text: {
+        width: WIDTH / 2,
+        color: "white",
         // textAlign:"auto",
-        marginLeft:10,
-        fontSize:14,
-        fontWeight:"500"
+        marginLeft: 10,
+        fontSize: 14,
+        fontWeight: "500"
     }
 });
+
 
 
