@@ -5,7 +5,7 @@ import * as Device from "expo-device";
 import WebView from "react-native-webview";
 import {GAP, PADDING, WIDTH} from "../../constants/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import remoteConfig from '@react-native-firebase/remote-config';
 
 
 
@@ -15,7 +15,7 @@ export function HomeScreen() {
     // const [store,setStore]=useState(null)
     const navigation = useAppNavigation()
 useEffect(()=>{
-    console.log()
+    console.log("fetchConfig",)
 
 },[])
     useEffect(() => {
@@ -27,9 +27,12 @@ useEffect(()=>{
 
 
     }, [])
-// const   remoteConfig=()=>{
-//
-// }
+const  fetchConfig=async ()=>{
+await remoteConfig().setConfigSettings({
+    minimumFetchIntervalMillis:10000,
+    fetchTimeMillis:10000,
+})
+}
     const start = (value) => {
         if (value === null) {
             loadFire()
@@ -64,7 +67,7 @@ useEffect(()=>{
 
     console.log("getLocalStorage", getLocalStorage)
     const loadFire = () => {
-        const getUrl: string = ""
+        const getUrl: string = "https://console.firebase.google.com/project/webview-e4487/overview"
         const brandDevice = Device.brand
         console.log("brandDevice", brandDevice)
         const simDevice = true
