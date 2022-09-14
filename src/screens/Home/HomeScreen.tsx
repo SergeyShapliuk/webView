@@ -1,58 +1,85 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {StyleSheet} from "react-native";
 import {useAppNavigation} from "../../types/types";
-
-import * as Device from 'expo-device';
+import * as Device from "expo-device";
 import WebView from "react-native-webview";
 import {GAP, PADDING, WIDTH} from "../../constants/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-//const path: string = "https://google.com"
+
+
 
 
 export function HomeScreen() {
-    const [store,setStore]=useState<string>("")
+    // const [store,setStore]=useState(null)
     const navigation = useAppNavigation()
+useEffect(()=>{
+    console.log()
 
+},[])
     useEffect(() => {
-            console.log("effekt")
-        getLocalStorage()
-            start(store)
-    }, [])
+        // AsyncStorage.removeItem("url").then()
+        console.log("effekt")
+        let value=null
+            start(value)
+            // console.log("res", store)
 
+
+    }, [])
+// const   remoteConfig=()=>{
+//
+// }
     const start = (value) => {
-        if (value === "") {
+        if (value === null) {
             loadFire()
         } else {
-            return value
+            localStorage(value)
+            getLocalStorage().then(res=>{
+                return navigation.navigate("WebView", {url: res})
+            })
+
+
         }
     }
     const localStorage = async (value) => {
-     await AsyncStorage.setItem("url", value)
+        try {
+            await AsyncStorage.setItem("url", value)
+            console.log("localStorage", value)
+            alert('Data successfully saved')
+        } catch (e) {
+            alert('Failed to save the data to the storage')
+        }
+
     }
     const getLocalStorage = async () => {
-            const jsonValue = await AsyncStorage.getItem("url")
-            return setStore(jsonValue)
+        try {
+           const jsonValue = await AsyncStorage.getItem("url")
+            console.log("js", jsonValue)
+            return jsonValue !== null ? jsonValue : null
+        } catch (e) {
+            alert('Failed to fetch the input from storage')
+        }
     }
 
-    console.log("getLocalStorage", store)
-    console.log("AsyncStorage", AsyncStorage.getItem("url"))
+    console.log("getLocalStorage", getLocalStorage)
     const loadFire = () => {
-        const getUrl = store
+        const getUrl: string = ""
         const brandDevice = Device.brand
         console.log("brandDevice", brandDevice)
         const simDevice = true
         if (getUrl === "" || brandDevice === "google" || !simDevice) {
             console.log("getUrl", getUrl)
-
             navigation.navigate("Home")
-        }else {
-            localStorage(store)
-            navigation.navigate("WebView", {url:store})
+        } else {
+            start(getUrl)
+            // localStorage(getUrl)
+            // navigation.navigate("WebView", {url: getUrl})
+
         }
     }
 }
+
 // localStorage(getUrl)
 // navigation.navigate("WebView", {url:getUrl})
 const styles = StyleSheet.create({
